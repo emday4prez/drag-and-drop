@@ -1,12 +1,5 @@
 # TypeScript Drag and Drop Project List
 
-<img src="/screenshots/calc.png" alt="screenshot of calculator" title="Screenshot">
-
-
- 
-
-## Overview
-
 This is a To-Do list with drag and drop capabilities.
 
 
