@@ -3,49 +3,51 @@
 enum ProjectStatus { Active, Finished}
 
 class Project {
- constructor(
-  public id: string,
-  public title: string, 
-  public description: string, 
-  public people: number, 
-  public status: ProjectStatus
-  ){
-
- }
+  constructor(
+    public id: string,
+    public title: string, 
+    public description: string, 
+    public people: number, 
+    public status: ProjectStatus
+  ){}
 }
 
 // project state management
-type Listener = (items: Project[]) => void;
+type Listener<T> = (items: T[]) => void;
 
+class State<T> {
+  protected listeners: Listener<T>[] = [];
+  addListener(listenerFn: Listener<T>){
+  this.listeners.push(listenerFn)
+  }
+}
 
-class ProjectState{
- private listeners: Listener[] = [];
- private projects: Project[] = [];
- private static instance: ProjectState
+class ProjectState extends State<Project>{
+    
+  private projects: Project[] = [];
+  private static instance: ProjectState
 
- private constructor() {
+  private constructor() {
+    super()
+  }
 
- }
-
- static getInstance(){
+  static getInstance(){
   if (this.instance){
-   return this.instance;
+    return this.instance;
   }
   this.instance = new ProjectState();
   return this.instance;
- }
+  }
 
- addListener(listenerFn: Listener){
-  this.listeners.push(listenerFn)
- }
 
- addProject(title: string, description: string, numOfPeople: number){
+
+addProject(title: string, description: string, numOfPeople: number){
   const newProject = new Project(
-   Math.random().toString(),
-   title, 
-   description,
-   numOfPeople,
-   ProjectStatus.Active
+  Math.random().toString(),
+  title, 
+  description,
+  numOfPeople,
+  ProjectStatus.Active
   )
   this.projects.push(newProject)
   for (const listenerFn of this.listeners){
@@ -108,26 +110,26 @@ abstract class Component <T extends HTMLElement, U extends HTMLElement> {
  element: U;
 
  constructor(
-   templateId: string, 
-   hostElementId: string, 
-   insertAtStart: boolean,
-   newElementId?: string
-   ){
+    templateId: string, 
+    hostElementId: string, 
+    insertAtStart: boolean,
+    newElementId?: string
+    ){
   this.templateElement = document.getElementById(
-   templateId
+    templateId
   )! as HTMLTemplateElement;
   this.hostElement = document.getElementById(hostElementId)! as T;
 
-   const importedNode = document.importNode(this.templateElement.content, true);
-   this.element = importedNode.firstElementChild as U;
-   if (newElementId){
-    this.element.id = newElementId 
-   }
-   this.attach(insertAtStart)
- }
-   private attach(insertAtBeginning: boolean){
-   this.hostElement.insertAdjacentElement(insertAtBeginning ? 'afterbegin' : 'beforeend', this.element
-   );
+    const importedNode = document.importNode(this.templateElement.content, true);
+    this.element = importedNode.firstElementChild as U;
+    if (newElementId){
+      this.element.id = newElementId 
+    }
+    this.attach(insertAtStart)
+  }
+    private attach(insertAtBeginning: boolean){
+    this.hostElement.insertAdjacentElement(insertAtBeginning ? 'afterbegin' : 'beforeend', this.element
+    );
   }
   abstract configure(): void;
   abstract renderContent(): void;
@@ -136,28 +138,28 @@ abstract class Component <T extends HTMLElement, U extends HTMLElement> {
 //project list
 class ProjectList extends Component <HTMLDivElement, HTMLElement>{
 
- assignedProjects: Project[];
+  assignedProjects: Project[];
 
- constructor(private type: 'active' | 'finished'){
+  constructor(private type: 'active' | 'finished'){
   super('project-list', 'app',false,`${type}-projects`)
-   
-   this.assignedProjects = []
+  
+  this.assignedProjects = []
 
-   this.configure()
-   this.renderContent()
+  this.configure()
+  this.renderContent()
   }
 
   configure() {
-       projectState.addListener((projects: Project[]) => {
+      projectState.addListener((projects: Project[]) => {
     const relevantProjects = projects.filter(prj => {
-     if(this.type === 'active'){
+    if(this.type === 'active'){
       return prj.status === ProjectStatus.Active
-     }
-     return prj.status === ProjectStatus.Finished;
+    }
+    return prj.status === ProjectStatus.Finished;
     })
     this.assignedProjects = relevantProjects;
     this.renderProjects()
-   })
+  })
   }
 
   renderContent(){
