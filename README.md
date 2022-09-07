@@ -13,5 +13,5 @@ This is a To-Do list with drag and drop capabilities.
 - TypeScript
 - HTML Templates
 - CSS
-- Object Oriented Programing 
+- Object-Oriented Programming 
 - Drag Events
